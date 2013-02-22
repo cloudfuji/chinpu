@@ -2,10 +2,17 @@
 
 A Clojure library for interacting with Mailchimp's API. In search of a better name.
 
+## Installation
+
+Available from clojar, by adding the following to your `project.clj`:
+
+    [org.clojars.zenbox/mailchimp "0.1.1"]
+
 ## Usage
 
 Usage params are explicit - you'll need to pass in your API key, region, and method params for each call.
 
+    (use 'mailchimp.core)
     (ping "us1" "api-key" {})
     (lists-for-email "us1" "api-key" {:email_address "example@gmail.com"})
     (list-unsubscribe "us1" "api-key" {:email_address "example@gmail.com"})
