@@ -1,18 +1,23 @@
-(ns mailchimp.core
-  (require [clojure.string :as string]
-           [clj-http.client :as client]
-           [cheshire.core :as json]))
+(ns chinpu.core
+  (:require [clojure.string :as string]
+            [clj-http.client :as client]
+            [cheshire.core :as json]))
 
 (def ^:dynamic debug false)
 
-(defn ->mailchimp-name [clojure-method-name]
+(defn ->mailchimp-name
+  "Converts from a clojure method name to a Mailchimp method name (CapitalizedCamelCase)"
+ [clojure-method-name]
   (-> (string/replace clojure-method-name #"(?:^|-)(\p{Alpha})" (fn [[_ char]] (string/upper-case char)))
       (string/replace-first #".{1}" string/lower-case)))
 
-(defn ->clojure-name [mailchimp-method-name]
+(defn ->clojure-name
+  "Converts from a MailchimpStyleMethodName to a clojure-style-method-name"
+ [mailchimp-method-name]
   (string/replace mailchimp-method-name #"[a-z][A-Z]" (fn [[a b]] (str a "-" (string/lower-case b)))))
 
 (def mailchimp-methods
+  "List of all Mailchimp methods to generate"
   [; Campaign Methods
    "campaignUnschedule" "campaignSchedule" "campaignScheduleBatch"
    "campaignResume" "campaignPause" "campaignSendNow" "campaignSendTest"
@@ -59,16 +64,20 @@
                                         ; Golden Monkey methods
    "gmonkeyAdd" "gmonkeyDel" "gmonkeyMembers" "gmonkeyActivity"])
 
-(defn base-url [region & [http?]]
+(defn base-url
+  "Returns the base API url for methods to work with. Optionally force non-https connection."
+  [region & [http?]]
   (string/join region [(if http? "http://" "https://") ".api.mailchimp.com/1.3"]))
 
-(defn request [method region api-key params & [opts]]
+(defn request
+  "Generic request method used for all higher-level mailchimp calls."
+ [method region api-key params & [opts]]
   (let [result (client/get (base-url region) {:query-params (merge params {:method method
                                                                            :apikey api-key})
                                               :debug debug})]
     (json/parse-string (:body result))))
 
-(defn make-mailchimp-command [method-name]
+(defn- make-mailchimp-command [method-name]
   `(defn ~(symbol (->clojure-name method-name)) [~'region ~'api-key ~'params & [~'opts]]
      (apply request [~(->mailchimp-name method-name) ~'region ~'api-key ~'params ~'opts])))
 
@@ -117,7 +126,9 @@
 
 (def metadata-url "https://login.mailchimp.com/oauth2/metadata")
 
-(defn metadata [oauth-access-token]
+(defn metadata
+  "Retrieves metadata for an account given an access token (used for retrieving which region an api-key belongs to)"
+ [oauth-access-token]
   (-> (client/get metadata-url {:headers {"Authorization" (str "OAuth " oauth-access-token)}})
       :body
       json/parse-string))
