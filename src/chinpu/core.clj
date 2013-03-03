@@ -72,9 +72,9 @@
 (defn request
   "Generic request method used for all higher-level mailchimp calls."
  [method region api-key params & [opts]]
-  (let [result (client/get (base-url region) {:query-params (merge params {:method method
-                                                                           :apikey api-key})
-                                              :debug debug})]
+ (let [result (client/get (base-url region) (merge {:query-params (merge params {:method method
+                                                                                 :apikey api-key})
+                                                    :debug debug} opts))]
     (json/parse-string (:body result))))
 
 (defn- make-mailchimp-command [method-name]
