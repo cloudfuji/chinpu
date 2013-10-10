@@ -3,7 +3,8 @@
             [clojure.string :as string]
             [clj-http.client :as client]
             [cheshire.core :as json])
-  (:import (java.io StringReader BufferedReader)))
+  (:import (java.io StringReader BufferedReader))
+  (:refer-clojure :exclude [list])))
 
 (defn base-url [region method & [http?]]
   (str (string/join region [(if http? "http://" "https://") ".api.mailchimp.com/export/1.0"]) "/" method))
