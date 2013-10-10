@@ -1,4 +1,4 @@
-(defproject org.clojars.zenbox/chinpu "0.1.4"
+(defproject org.clojars.zenbox/chinpu "0.1.5"
   :description "Wrapper around the Mailchimp API"
   :url "http://github.com/cloudfuji/chinpu"
   :license {:name "Eclipse Public License"
